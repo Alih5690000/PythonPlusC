@@ -43,6 +43,9 @@ def sumof(a):
     arr=arr_t(*a)
     return lib.sumof(arr,len(a))
 
+def sumof_raw(a,length):
+    return lib.sumof(a,length)
+
 def add(a,b):
     return lib.add(a,b)
 
