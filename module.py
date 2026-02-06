@@ -58,3 +58,37 @@ def stoi(a:str)->int:
     if err!=0:
         raise ValueError("stoi error")
     return res.value
+
+class _ArrayInt(ctypes.Structure):
+    _fields_=[
+        ("size",ctypes.c_int),
+        ("data",ctypes.POINTER(ctypes.c_int))
+    ]
+
+class Pointer:
+    def __init__(self,ptr):
+        self._ptr=ptr
+    @property
+    def value(self):
+        return self._ptr.contents.value
+    @value.setter
+    def value(self,a):
+        self._ptr.contents.value=a;
+
+lib.ArrayInt_init.argtypes=[ctypes.POINTER(_ArrayInt),ctypes.c_int]
+lib.ArrayInt_init.restype=None
+
+lib.ArrayInt_data.argtypes=[ctypes.POINTER(_ArrayInt)]
+lib.ArrayInt_data.restype=ctypes.POINTER(ctypes.c_int)
+
+class ArrayInt:
+    def __init__(self,size):
+        self._obj=_ArrayInt(size)
+        lib.ArrayInt_init(ctypes.byref(self._obj),size)
+    def __getitem__(self,index)->Pointer:
+        if index<0 or index>=self._obj.size:
+            raise ValueError("Invalid index")
+        return lib.ArrayInt_data(ctypes.byref(self._obj))[index]
+    def __setitem__(self,index,val):
+        lib.ArrayInt_data(ctypes.byref(self._obj))[index]=val
+    

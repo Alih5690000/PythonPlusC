@@ -1,4 +1,5 @@
 #include <string.h>
+#include <stdlib.h>
 
 //gcc -shared -o lib.so -fPIC main.c
 
@@ -25,6 +26,20 @@ int stoi(const char* str,int* res){
         *res+=str[i]-'0';
     }
     return 0;
+}
+
+typedef struct{
+    int size;
+    int* data;
+} ArrayInt;
+
+void ArrayInt_init(ArrayInt* o,int size){
+    o->size=size;
+    o->data=malloc(sizeof(int)*size);
+}
+
+int* ArrayInt_data(ArrayInt* o){
+    return o->data;
 }
 
 int sumof(int* a,int size){
