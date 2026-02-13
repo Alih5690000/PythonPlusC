@@ -49,3 +49,5 @@ int sumof(int* a,int size){
     }
     return sum;
 }
+
+

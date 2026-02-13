@@ -1,4 +1,3 @@
-import module 
-a=module.ArrayInt(6)
-a[2]=52
-print(a[2])
+import lib2
+
+print(lib2.add(9,7))
