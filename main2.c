@@ -1,4 +1,5 @@
 #include <Python.h>
+#include <structmember.h>
 
 typedef struct{
     PyObject_HEAD
@@ -10,17 +11,33 @@ static PyObject* Obj_new(PyTypeObject* tp,PyObject* args,PyObject* kwargs){
     self=(Obj*)tp->tp_alloc(tp,0);
     if (!self) return NULL;
     int a;
-    if (!PyArg_ParseTuple(args,"i",&a)) return NULL;
+    if (!PyArg_ParseTuple(args,"i",&a)){ 
+        Py_DECREF(self);
+        return NULL;
+    }
     self->a=a;
-    return self;
+    return (PyObject*)self;
 }
+
+static PyObject* Obj_str(PyObject* self) {
+    Obj* obj = (Obj*)self;              
+    char buffer[64];
+    snprintf(buffer, sizeof(buffer), "%d", obj->a); 
+    return PyUnicode_FromString(buffer);
+}
+
+static PyMemberDef Obj_members[] = {
+    {"a", T_INT, offsetof(Obj, a), 0, "integer field"},
+    {NULL}
+};
 
 static PyTypeObject Obj_t={
     PyVarObject_HEAD_INIT(NULL,0)
-    .tp_name="Obj",
+    .tp_name="lib2.Obj",
     .tp_basicsize=sizeof(Obj),
     .tp_flags=Py_TPFLAGS_DEFAULT,
-    .tp_new=Obj_new
+    .tp_new=Obj_new,
+    .tp_str=Obj_str
 };
 
 static PyObject* add(PyObject* self,PyObject* args){
@@ -40,13 +57,16 @@ static PyMethodDef ModuleMethods[]={
 
 static struct PyModuleDef moduledef={
     PyModuleDef_HEAD_INIT,
-    "module",
+    "lib2",
     NULL,
     -1,
     ModuleMethods
 };
 
 PyMODINIT_FUNC PyInit_lib2(void){
+    PyObject* mod=PyModule_Create(&moduledef);
     PyType_Ready(&Obj_t);
-    return PyModule_Create(&moduledef);
+    Py_INCREF(&Obj_t);
+    PyModule_AddObject(mod,"Obj",(PyObject*)&Obj_t);
+    return mod;
 }
